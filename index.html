@@ -40,6 +40,7 @@
             text-align: center;
         }
     </style>
+    <link rel="shortcut icon" href="#">
 </head>
 <body>
 
@@ -50,6 +51,10 @@
 <script>
 
 const WIN_COLOR = "#00A100";
+const AUDIO_O = new Audio("o.wav");
+const AUDIO_X = new Audio("x.wav");
+const AUDIO_END = new Audio("end.wav");
+const AUDIO_BOOM = new Audio("boom.wav");
 
 function rotate_array_90_cclock(arr) {
     const rows = arr.length;
@@ -111,6 +116,7 @@ function process_cell(td, mode) {
             return;
         };
 
+        AUDIO_BOOM.play();
         for (let row of get_table_elements()) {
             for (let td of row) {
                 td.game_value = ""
@@ -119,17 +125,23 @@ function process_cell(td, mode) {
                 td.style.cursor = "pointer";
             };
         };
-
+        
         game_wait_for_restart = 0;
-        turn = 0;
+        starting_turn = !starting_turn;
+        turn = starting_turn;
         
         return;
-
+        
     }
     switch (mode) {
         case "click":
             if (td.game_value) {
                 return;
+            }
+            if (turn) {
+                AUDIO_X.play();
+            } else {
+                AUDIO_O.play();
             }
             td.game_value = turn ? "X" : "O";
             td.innerHTML = td.game_value;
@@ -137,10 +149,24 @@ function process_cell(td, mode) {
             td.style.cursor = "not-allowed";
             turn = !turn;
             winner = check_data_for_win(get_table_elements());
-            if (!winner) {
+            full = get_table_elements().every(row => row.every(td => td.game_value != ""));
+            console.log(full);
+            if (full && !winner) {
+                game_wait_for_restart = 1
+                for (let row of get_table_elements()) {
+                    for (let td of row) {
+                        td.style.cursor = "default";
+                    };
+                };
+                AUDIO_END.play()
                 return;
             };
 
+            if (!winner) {
+                return;
+            }
+
+            AUDIO_END.play();
             game_wait_for_restart = 1;
             for (let td of winner) {
                 td.style.backgroundColor = WIN_COLOR;
@@ -177,8 +203,10 @@ function process_cell(td, mode) {
 
 let ttt_div = document.getElementById("tictactoe");
 let table = document.createElement("table");
-var turn = 0;
+var starting_turn = 0;
+var turn = starting_turn;
 var game_wait_for_restart = 0;
+
 
 for (let row = 0; row < 3; row ++) {
     let tr = document.createElement("tr");
