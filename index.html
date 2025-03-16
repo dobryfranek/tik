@@ -34,11 +34,6 @@
             cursor: pointer;
         }
 
-        #turn {
-            font-size: 3vw;
-            font-family: "arial";
-            text-align: center;
-        }
     </style>
     <link rel="shortcut icon" href="#">
 </head>
@@ -196,9 +191,39 @@ function process_cell(td, mode) {
         
         default:
             break;
-    }
+    };
+};
 
-    
+function process_resize() {
+    let w_width = window.innerWidth;
+    let w_height = window.innerHeight;
+
+    mode = w_width > w_height ? "horziontal" : "vertical";
+    switch (mode) {
+        case "horizontal":
+            table.style.width = "25vw";
+            table.style.height = "25vw";
+            for (row of get_table_elements()) {
+                for (td of row) {
+                    td.style.width = "5vw";
+                    td.style.height = "5vw";
+                };
+            };
+            break
+
+        case "vertical":
+            table.style.width = "25vh";
+            table.style.height = "25vh";
+            for (row of get_table_elements()) {
+                for (td of row) {
+                    td.style.width = "5vh";
+                    td.style.height = "5vh";
+                };
+            };
+            break
+    };
+
+    console.log(mode);
 }
 
 let ttt_div = document.getElementById("tictactoe");
@@ -206,7 +231,9 @@ let table = document.createElement("table");
 var starting_turn = 0;
 var turn = starting_turn;
 var game_wait_for_restart = 0;
+process_resize()
 
+window.onresize = process_resize;
 
 for (let row = 0; row < 3; row ++) {
     let tr = document.createElement("tr");
