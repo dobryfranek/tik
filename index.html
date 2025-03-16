@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #191b1b;
+            color: #FFFFFF;
+        }
+        
+        table {
+            /* border: 0vw solid black; */
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 25vw;
+            height: 25vw;
+            font-family: "arial";
+        }
+
+        td {
+            width: 33%;
+            height: 33%;
+            border: 0.5vw solid #8f8f8f;
+            text-align: center;
+            font-size: 5vw;
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        #turn {
+            font-size: 3vw;
+            font-family: "arial";
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+
+
+<div id="tictactoe"></div>
+
+<script>
+
+const WIN_COLOR = "#00A100";
+
+function rotate_array_90_cclock(arr) {
+    const rows = arr.length;
+    const cols = arr[0].length;
+    let rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            rotated[j][rows - 1 - i] = arr[i][j];
+        }
+    }
+
+    return rotated;
+}
+
+function get_table_elements() {
+    data = [];
+    for (let row of table.rows) {
+        let row_data = [];
+        for (let td of row.cells) {
+            row_data.push(td);
+        }
+        data.push(row_data);
+    }
+    return data;
+}
+
+function check_data_for_win(data) {
+    for (let row of data) {
+        if (row.every(td => td.game_value === row[0].game_value && td.game_value != "")) {
+            return row;
+        }
+    }
+    
+    data_rotated = rotate_array_90_cclock(data);
+    
+    for (let col of data_rotated) {
+        if (col.every(td => td.game_value === col[0].game_value && td.game_value != "")) {
+            return col;
+        }
+    }
+
+    let northwest_southeast = [data[0][0], data[1][1], data[2][2]];
+    let southwest_northeast = [data[2][0], data[1][1], data[0][2]];
+
+    if (northwest_southeast.every(td => td.game_value === northwest_southeast[0].game_value && td.game_value != "")) {
+        return northwest_southeast;
+    }
+    if (southwest_northeast.every(td => td.game_value === southwest_northeast[0].game_value && td.game_value != "")) {
+        return southwest_northeast;
+    }
+
+    return "";
+}
+
+function process_cell(td, mode) {
+    if (game_wait_for_restart) {
+        if (mode != "click") {
+            return;
+        };
+
+        for (let row of get_table_elements()) {
+            for (let td of row) {
+                td.game_value = ""
+                td.innerHTML = ""
+                td.style.backgroundColor = document.body.style.backgroundColor;
+                td.style.cursor = "pointer";
+            };
+        };
+
+        game_wait_for_restart = 0;
+        turn = 0;
+        
+        return;
+
+    }
+    switch (mode) {
+        case "click":
+            if (td.game_value) {
+                return;
+            }
+            td.game_value = turn ? "X" : "O";
+            td.innerHTML = td.game_value;
+            td.style.opacity = 1;
+            td.style.cursor = "not-allowed";
+            turn = !turn;
+            winner = check_data_for_win(get_table_elements());
+            if (!winner) {
+                return;
+            };
+
+            game_wait_for_restart = 1;
+            for (let td of winner) {
+                td.style.backgroundColor = WIN_COLOR;
+            };
+
+            for (let row of get_table_elements()) {
+                for (let td of row) {
+                    td.style.cursor = "default";
+                };
+            };
+            break;
+
+
+        case "mouseover":
+            if (td.innerHTML) {
+                return;
+            };
+            td.innerHTML = turn ? "X" : "O";
+            td.style.opacity = 0.1;
+            break;
+        
+       
+        case "mouseout":
+            td.innerHTML = td.game_value;
+            td.style.opacity = 1;
+            break;
+        
+        default:
+            break;
+    }
+
+    
+}
+
+let ttt_div = document.getElementById("tictactoe");
+let table = document.createElement("table");
+var turn = 0;
+var game_wait_for_restart = 0;
+
+for (let row = 0; row < 3; row ++) {
+    let tr = document.createElement("tr");
+    for (let col = 0; col < 3; col ++) {
+        let td = document.createElement("td");
+        td.addEventListener("click", () => {process_cell(td, mode="click")});
+        td.addEventListener("mouseover", () => {process_cell(td, mode="mouseover")});
+        td.addEventListener("mouseleave", () => {process_cell(td, mode="mouseout")});
+        td.game_value = "";
+
+        tr.appendChild(td);
+    }
+    table.appendChild(tr);
+}
+
+ttt_div.appendChild(table);
+
+</script>
+
+</body>
+</html>
