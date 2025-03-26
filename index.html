@@ -64,10 +64,10 @@
 
 <script>
 
-// const WIN_COLOR = "#00A100";
-//const WIN_COLOR = "#A10000";
-    const WIN_COLOR = "#000000";
-
+let x_win_count = 0;
+let o_win_count = 0;
+    
+const WIN_COLOR = "#00A100";
 const AUDIOS = {
     "o": "o.wav",
     "x": "x.wav",
@@ -208,6 +208,14 @@ function process_cell(td, mode) {
                 setTimeout(() => {playaudio("end")}, 500);
             };
 
+            if (winner[0].game_value == "X") {
+                x_win_counter ++;
+            } else {
+                o_win_counter ++;
+            }
+
+            win_counter.innerHTML = `o wins: ${o_win_counter}<br>x wins: ${x_win_counter}`
+            
             game_wait_for_restart = 1;
             for (let td of winner) {
                 td.style.backgroundColor = WIN_COLOR;
@@ -315,8 +323,10 @@ for (let row = 0; row < 3; row ++) {
     table.appendChild(tr);
 }
 
+let win_counter = document.createElement("div");
+    
 ttt_div.appendChild(reset_btn);
-
+ttt_div.appendChild(win_counter);
 ttt_div.appendChild(table);
 
 </script>
