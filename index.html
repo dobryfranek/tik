@@ -209,12 +209,12 @@ function process_cell(td, mode) {
             };
 
             if (winner[0].game_value == "X") {
-                x_win_counter ++;
+                x_win_count ++;
             } else {
-                o_win_counter ++;
+                o_win_count ++;
             }
 
-            win_counter.innerHTML = `o wins: ${o_win_counter}<br>x wins: ${x_win_counter}`
+            win_counter.innerHTML = `o wins: ${o_win_count}<br>x wins: ${x_win_count}`
             
             game_wait_for_restart = 1;
             for (let td of winner) {
